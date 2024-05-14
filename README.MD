@@ -2,11 +2,23 @@
 Check that activity and workflow calls match with function declarations. 
 
 ### Installation:
+Download the latest release from
+https://github.com/shirokovroma/go-temporal-lint/releases/latest
 
+Uncompress archive and set run permissions:
+```bash	
+chmod +x go-temporal-lint
+```
+copy to /usr/local/bin
+```bash
+sudo cp go-temporal-lint /usr/local/bin
+```
 
 ### Usage:
 #### Run:
-
+```bash
+go-temporal-lint ./...
+```
 
 ### Rules example
 ```go
