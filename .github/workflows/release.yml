@@ -1,12 +1,29 @@
 name: Build and Release
 
-on: release
+on:
+  release:
+    types: [created]
 
 jobs:
   build:
     name: Build and Release go temporal lint
     runs-on: ubuntu-latest
     steps:
+      # print debug info
+      - name: Print Debug Info
+        run: |
+          echo "GITHUB_REF: $GITHUB_REF"
+          echo "GITHUB_SHA: $GITHUB_SHA"
+          echo "GITHUB_REPOSITORY: $GITHUB_REPOSITORY"
+          echo "GITHUB_ACTOR: $GITHUB_ACTOR"
+          echo "GITHUB_WORKFLOW: $GITHUB_WORKFLOW"
+          echo "GITHUB_HEAD_REF: $GITHUB_HEAD_REF"
+          echo "GITHUB_BASE_REF: $GITHUB_BASE_REF"
+          echo "GITHUB_EVENT_NAME: $GITHUB_EVENT_NAME"
+          echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
+          echo "GITHUB_ACTION: $GITHUB_ACTION"
+          echo "GITHUB_EVENT_PATH: $GITHUB_EVENT_PATH"
+
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
@@ -20,29 +37,29 @@ jobs:
 
       # Build
       - name: Build linux/amd64
-        run: GOARCH=amd64 GOOS=linux go build -v -o go-temporal-lint-linux-amd64
+        run: GOARCH=amd64 GOOS=linux go build -v -o linux-amd64/go-temporal-lint
 
       - name: Build linux/arm64
-        run: GOARCH=arm64 GOOS=linux go build -v -o go-temporal-lint-linux-arm64
+        run: GOARCH=arm64 GOOS=linux go build -v -o linux-arm64/go-temporal-lint
 
       - name: Build darwin/amd64
-        run: GOARCH=amd64 GOOS=darwin go build -v -o go-temporal-lint-darwin-amd64
+        run: GOARCH=amd64 GOOS=darwin go build -v -o darwin-amd64/go-temporal-lint
 
       - name: Build darwin/arm64
-        run: GOARCH=arm64 GOOS=darwin go build -v -o go-temporal-lint-darwin-arm64
+        run: GOARCH=arm64 GOOS=darwin go build -v -o darwin-arm64/go-temporal-lint
 
       # compress
       - name: Compress linux/amd64
-        run: tar -czvf go-temporal-lint-linux-amd64.tar.gz go-temporal-lint-linux-amd64
+        run: cd linux-amd64 && tar -czvf go-temporal-lint-linux-amd64.tar.gz go-temporal-lint && cd ..
 
       - name: Compress linux/arm64
-        run: tar -czvf go-temporal-lint-linux-arm64.tar.gz go-temporal-lint-linux-arm64
+        run: cd linux-arm64 && tar -czvf go-temporal-lint-linux-arm64.tar.gz go-temporal-lint && cd ..
 
       - name: Compress darwin/amd64
-        run: tar -czvf go-temporal-lint-darwin-amd64.tar.gz go-temporal-lint-darwin-amd64
+        run: cd darwin-amd64 && tar -czvf go-temporal-lint-darwin-amd64.tar.gz go-temporal-lint && cd ..
 
       - name: Compress darwin/arm64
-        run: tar -czvf go-temporal-lint-darwin-arm64.tar.gz go-temporal-lint-darwin-arm64
+        run: cd darwin-arm64 && tar -czvf go-temporal-lint-darwin-arm64.tar.gz go-temporal-lint && cd ..
 
       - name: Create Release
         id: create_release
@@ -50,7 +67,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
+          tag_name: ${{ github.ref }}-release
           release_name: Release ${{ github.ref }}
           draft: false
           prerelease: false
@@ -62,7 +79,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./go-temporal-lint-linux-amd64.tar.gz
+          asset_path: ./linux-amd64/go-temporal-lint-linux-amd64.tar.gz
           asset_name: go-temporal-lint-linux-amd64.tar.gz
           asset_content_type: application/octet-stream
 
@@ -73,7 +90,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./go-temporal-lint-linux-arm64.tar.gz
+          asset_path: ./linux-arm64/go-temporal-lint-linux-arm64.tar.gz
           asset_name: go-temporal-lint-linux-arm64.tar.gz
           asset_content_type: application/octet-stream
 
@@ -84,7 +101,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./go-temporal-lint-darwin-amd64.tar.gz
+          asset_path: ./darwin-amd64/go-temporal-lint-darwin-amd64.tar.gz
           asset_name: go-temporal-lint-darwin-amd64.tar.gz
           asset_content_type: application/octet-stream
 
@@ -95,6 +112,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./go-temporal-lint-darwin-arm64.tar.gz
+          asset_path: ./darwin-arm64/go-temporal-lint-darwin-arm64.tar.gz
           asset_name: go-temporal-lint-darwin-arm64.tar.gz
           asset_content_type: application/octet-stream
