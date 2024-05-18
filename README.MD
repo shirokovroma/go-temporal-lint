@@ -5,11 +5,22 @@ Check that activity and workflow calls match with function declarations.
 Download the latest release from
 https://github.com/shirokovroma/go-temporal-lint/releases/latest
 
-Uncompress archive and set run permissions:
+Use wget to download release:
+```bash
+wget https://github.com/shirokovroma/go-temporal-lint/releases/download/v0.0.2-release/go-temporal-lint-darwin-arm64.tar.gz
+```
+
+Uncompress archive:
+```bash
+tar -xvf go-temporal-lint-darwin-arm64.tar.gz
+```
+
+set run permissions:
 ```bash	
 chmod +x go-temporal-lint
 ```
-copy to /usr/local/bin
+
+copy to /usr/local/bin:
 ```bash
 sudo cp go-temporal-lint /usr/local/bin
 ```
